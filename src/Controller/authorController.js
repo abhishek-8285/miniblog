@@ -1,70 +1,77 @@
 const authorModel=require("../model/authorModel")
 const jwt = require("jsonwebtoken");
+const validation=require("../validation/validator")
+const{isValid,isObjectValid,isValidBody,isValidName,isValidType,validateEmail}=validation
 
 
-
-titver=function (tit){
-  if(tit==="Mr"){
-    return "Mr"
-  }else if(tit=="Miss"){
-    return "Miss"
-  }else if(tit=="Mrs"){
-    return "Mrs"
-  }else{
-    return null
-  }
-}
 
 const createAuthor=async function (req,res){
 try{
 
     let authordata=req.body
-    if(!authordata.fname){
-        return res.status(400).send({ status: false, msg: "please fill firstName" })
+    if(!isValidBody(authordata)){
+      return res.status(400).send({ status: false, msg: "required some fields" })
     }
-    if(!authordata.lname){
-        return res.status(400).send({ status: false, msg: "please fill LastName" })
-    }
-    if(!authordata.title){
-       return res.status(400).send({ status: false, msg: "please fill title" })
-    }
-  
+    const{fname,lname,title,email,password,}=authordata
 
-    if(!titver(authordata.title)){
+    if(!isValid(fname)||!isValidType(fname)){
+        return res.status(400).send({ status: false, msg: "fName is required and type must be string" })
+    }
+    
+    if(!isValid(lname)||!isValidType(lname)){
+      return res.status(400).send({ status: false, msg: "lname is required and type must be string" })
+     }
+  if(!isValid(title)||!isValidType(title)){
+    return res.status(400).send({ status: false, msg: "title is required and type must be string" })
+}
+
+    if(!["Miss","Mr","Mrs"].includes(title)){
       return res.status(400).send({ status: false, msg: 'please use only these titles "Mr","Mrs","Miss"' })
     }
-    if(!authordata.email){
-       return res.status(400).send({ status: false, msg: "please fill email" })
-    }
-    
-    if(!authordata.password){
-        res.status(400).send({ status: false, msg: "please fill password"})
-    }
-    
-    let emaildata=await authorModel.find({email:authordata.email})
 
-    if(Object.keys(emaildata).length > 0){
+    if(!isValid(email)||!isValidType(email)){
+      return res.status(400).send({ status: false, msg: "email is required and type must be string" })
+  }
+    if(!validateEmail(email)){
+      return res.status(400).send({ status: false, msg: "email is not valid" })
+    }
+    
+    if(!isValid(password)||!isValidType(password)){
+      return res.status(400).send({ status: false, msg: "password is required and type must be string" })
+  }
+    
+    let emaildata=await authorModel.findOne({email:authordata.email})
+
+    if(emaildata){
       return res.status(400).send({ status: false, msg: "use different emailId" })
-    }else{
-      let author=await authorModel.create(authordata)
-     return res.status(201).send({status: true,msg:author})
     }
-
+    
+    let author=await authorModel.create(authordata)
+     return res.status(201).send({status: true,data:author})
+    
 }catch(err){
-  console.log(err)
+
    return res.status(500).send({"err":err});
-   
 }
 }
 
 const loginAuthor = async function (req, res) {
   try {
-    let emailId = req.body.email;
-    if(!emailId){return res.status(400).send({status: false,msg:"please provide email"})};
-    let key = req.body.password;
-    if(!key){return res.status(400).send({status: false,msg:"please provide password"})};
+    let body=req.body
+    if(!isValidBody(body)){
+      return res.status(400).send({ status: false, msg: "email and password is requird" })
+    }
+    const {email,password}=body
+
+    if(!isValid(email)||!isValidType(email)){
+      return res.status(400).send({ status: false, msg: "email is required and type must be string" })
+  }
+  if(!isValid(password)||!isValidType(password)){
+    return res.status(400).send({ status: false, msg: "password is required and type must be string" })
+}
+
   
-    let user = await authorModel.findOne({ email: emailId, password: key });
+    let user = await authorModel.findOne({ email: email, password: password });
     if (!user)
       return res.status(401).send({
         status: false,
@@ -80,7 +87,7 @@ const loginAuthor = async function (req, res) {
       },
       "projectone"
     );
-   return res.status(200).send({ status: true, token: token , authorId:user._id});
+   return res.status(201).send({ status: true, data:{ token:token, authorId:user._id }});
   } catch (error) {
    return res.status(500).send({ err: error });
   }

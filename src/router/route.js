@@ -13,17 +13,17 @@ router.get("/blogs", authMiddleware.authenticate, blogController.getBlog);
 router.put(
   "/blogs/:blogId",
   authMiddleware.authenticate,
-  authMiddleware.authorise,
+ 
   blogController.updateBlog
 );
 router.delete(
   "/blogs/:blogId",
   authMiddleware.authenticate,
-  authMiddleware.authorise,
+  
   blogController.deleteById
 );
 router.delete(
-  "/blogs",authMiddleware.authenticate,authMiddleware.delByQue,blogController.deleteByQuery
+  "/blogs",authMiddleware.authenticate,blogController.deleteByQuery
 );
 
 module.exports = router;

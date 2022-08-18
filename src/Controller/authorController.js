@@ -23,7 +23,7 @@ try{
      }
   if(!isValid(title)||!isValidType(title)){
     return res.status(400).send({ status: false, msg: "title is required and type must be string" })
-}
+  }
 
     if(!["Miss","Mr","Mrs"].includes(title)){
       return res.status(400).send({ status: false, msg: 'please use only these titles "Mr","Mrs","Miss"' })
@@ -51,7 +51,7 @@ try{
     
 }catch(err){
 
-   return res.status(500).send({"err":err});
+   return res.status(500).send({status: false, msg:err});
 }
 }
 
@@ -89,7 +89,7 @@ const loginAuthor = async function (req, res) {
     );
    return res.status(201).send({ status: true, data:{ token:token, authorId:user._id }});
   } catch (error) {
-   return res.status(500).send({ err: error });
+    return res.status(500).send({status: false, msg:err});
   }
   };
 

@@ -59,7 +59,7 @@ const createBlog = async function (req, res) {
     return res.status(201).send({ status: true, data: blogcreate });
     
   } catch (err) {
-    res.status(500).send({ err: err });
+    return res.status(500).send({status: false, msg:err});
   }
 };
 
@@ -97,7 +97,7 @@ const getBlog = async function (req, res) {
       res.status(404).send({ status: false, msg: "data not found" });
     }
   } catch (err) {
-    res.status(500).send({ err: err });
+    return res.status(500).send({status: false, msg:err});
   }
 };
 
@@ -112,8 +112,6 @@ const updateBlog = async function (req, res) {
     if (!isObjectValid(blogId)) {
       return res.status(400).send({ status: false, msg: "Id is not valid" });}
 
-    if (!isObjectValid(decodedAuthor)) {
-      return res.status(400).send({ status: false, msg: "authorId is not valid" });}
 
     const blog=await blogModel.findOne({_id:blogId,isDeleted:false})
 
@@ -179,7 +177,7 @@ const updateBlog = async function (req, res) {
       res.status(404).send({status: false, msg:"data not found"});
     }
   } catch (err) {
-    return res.status(500).send({ err: err.message });
+    return res.status(500).send({status: false, msg:err});
   }
 };
 
@@ -190,9 +188,6 @@ const deleteById = async function (req, res) {
 
     if (!isObjectValid(blogId)) {
       return res.status(400).send({ status: false, msg: "Id is not valid" });}
-
-    if (!isObjectValid(decodedAuthor)) {
-      return res.status(400).send({ status: false, msg: "authorId is not valid" });}
 
     const blog=await blogModel.findOne({_id:blogId,isDeleted:false})
 
@@ -211,7 +206,7 @@ const deleteById = async function (req, res) {
       res.status(200).send({ status: true, data:""});
     
   } catch (err) {
-    res.status(500).send({ err: err });
+    return res.status(500).send({status: false, msg:err});
   }
 };
 
@@ -228,8 +223,7 @@ const deleteByQuery =  async function (req, res) {
         return res.status(200).send({status:false,message:"no data found inside query ",})
       }
 
-      if (!isObjectValid(decodedAuthor)) {
-        return res.status(400).send({ status: false, msg: "authorId is not valid" });}
+
 
       const{authorId,category,tags,subcategory,isPublished}=query
 
@@ -254,7 +248,7 @@ const deleteByQuery =  async function (req, res) {
 
       const blog=await blogModel.find(filteredBody)
 
-      if(Array.isArray(blog)&&blog.length===0){
+      if(blog.length===0){
         return res.status(404).send({ status: false, msg:"no data found" })
       }
 
@@ -267,7 +261,7 @@ const deleteByQuery =  async function (req, res) {
       return res.status(200).send({ status: true, msg:del });
     
     } catch (error) {
-      res.status(500).send({ err: error });
+      return res.status(500).send({status: false, msg:err});
     }
 };
 
